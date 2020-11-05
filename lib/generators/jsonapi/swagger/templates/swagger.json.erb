@@ -79,6 +79,7 @@
          columns = columns_with_comment(need_encoding: false)
           props[attr][:type] = columns[attr][:type]
           props[attr][:items] = { type: columns[attr][:items_type] } if columns[attr][:is_array]
+          props[attr][:format] = columns[attr][:format] if columns[attr][:format]
           props[attr][:'x-nullable'] = columns[attr][:nullable]
           props[attr][:description] = columns[attr][:comment]
         end

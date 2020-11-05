@@ -132,8 +132,16 @@ module Jsonapi
         end
         model_klass.columns.each do |col|
           col_name = transform_method ? col.name.send(transform_method) : col.name
-          clos[col_name.to_sym] = { type: swagger_type(col), items_type: col.type, is_array: col.array,  nullable: col.null, comment: col.comment }
+          clos[col_name.to_sym] = { type: swagger_type(col),
+            items_type: col.type,
+            is_array: col.array,
+            nullable: col.null,
+            comment: col.comment
+          }
+          format = swagger_format(col)
+          clos[col_name.to_sym][:format] = format unless format.nil?
           clos[col_name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
+
         end
       end
     end
@@ -142,12 +150,23 @@ module Jsonapi
       return 'array' if column.array
 
       case column.type
-      when :bigint, :integer then 'integer'
+      when :bigint, :integer, :primary_key then 'integer'
       when :boolean          then 'boolean'
+      when :real, :float, :decimal, :bigdecimal  then 'number'
+      when :jsonb, :json          then 'object'
       else 'string'
       end
     end
 
+    def swagger_format(column)
+      case column.type
+      when :date then 'date'
+      when :datetime then 'datetime'
+      when :float then 'double'
+      else
+        nil
+      end
+    end
     def relation_table_name(relation)
       return relation.class_name.tableize if relation.respond_to?(:class_name)
       return relation.name if relation.respond_to?(:name)
