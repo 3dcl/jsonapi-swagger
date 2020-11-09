@@ -15,6 +15,10 @@ module Jsonapi
       alias relationships relationships_to_serialize
 
       # TODO: fast_jsonapi resource
+
+      def attribute_type_info
+        {}
+      end
       def sortable_fields
         []
       end

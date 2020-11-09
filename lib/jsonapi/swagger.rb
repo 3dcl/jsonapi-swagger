@@ -39,6 +39,10 @@ module Jsonapi
       def attribute_default
         @attribute_default ||= { type: :string, nullable: true, comment: nil }
       end
+
+      def before_spec
+        ""
+      end
     end
   end
 end

@@ -12,6 +12,9 @@ module Jsonapi
 
       alias attributes attribute_blocks
 
+      def attribute_type_info
+        {}
+      end
       def relationships
         {}.tap do |relations|
           relationship_blocks.each do |rel, block|

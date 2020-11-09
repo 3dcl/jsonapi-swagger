@@ -2,7 +2,6 @@ module Jsonapi
   class SwaggerGenerator < Rails::Generators::NamedBase
     desc 'Create a JSONAPI Swagger.'
     source_root File.expand_path('templates', __dir__)
-
     def create_swagger_file
       if Jsonapi::Swagger.use_rswag
         template 'swagger.rb.erb', spec_file
@@ -140,12 +139,17 @@ module Jsonapi
     def columns_with_comment(need_encoding: true)
       @columns_with_comment ||= {}.tap do |clos|
         clos.default_proc = proc do |h, k|
-          h[k] = attribute_default
+            t = swagger_type(nil, k.to_s)
+            attr_descr = attribute_default.merge(type: t, is_array: t == :array)
+            if(t == :array)
+              attr_descr[:items_type] = array_items_type(k, nil)
+            end
+            h[k] = attr_descr
         end
         model_klass.columns.each do |col|
           col_name = transform_method ? col.name.send(transform_method) : col.name
-          clos[col_name.to_sym] = { type: swagger_type(col),
-            items_type: col.type,
+          clos[col_name.to_sym] = { type: swagger_type(col, col_name),
+            items_type: array_items_type(col_name, col),
             is_array: col.array,
             nullable: col.null,
             comment: col.comment
@@ -157,23 +161,58 @@ module Jsonapi
         end
         model_klass.translation_class.columns.each do |col|
           if model_klass.translated_attribute_names.include? col.name.to_sym
-            clos[col.name.to_sym] = { type: swagger_type(col), items_type: col.type, is_array: col.array,  nullable: col.null, comment: col.comment }
+            clos[col.name.to_sym] = { type: swagger_type(col, col.name), items_type: col.type, is_array: col.array,  nullable: col.null, comment: col.comment }
             clos[col.name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
           end
         end if model_klass.respond_to? :translation_class
       end
     end
 
-    def swagger_type(column)
-      return 'array' if column.array
+    def swagger_type(column, name = nil)
+      name ||= column&.name
+      return :array if column&.array
 
-      case column.type
+      type = swagger_type_from_column_type(column&.type)
+
+      type_info = resource_klass.attribute_type_info
+
+      if(!type_info[name.to_sym].blank?)
+        t = type_info[name.to_sym]
+        return t[:type] if(t.is_a?(Hash))
+        return t
+      elsif(!type.nil?)
+        type
+      else
+        :string
+      end
+    end
+
+    # derives the swagger attribute type from AR database column type
+    def swagger_type_from_column_type(type)
+      case type
       when :bigint, :integer, :primary_key then 'integer'
       when :boolean          then 'boolean'
       when :real, :float, :decimal, :bigdecimal  then 'number'
       when :jsonb, :json          then 'object'
-      else 'string'
+      else
+        nil
       end
+    end
+
+    # derives the items type of an array type.
+    def array_items_type(attribute, col = nil)
+      items_type = col.type if col
+
+      type_info = resource_klass.attribute_type_info
+
+      if(type_info && type_info&.[](attribute.to_sym).is_a?(Hash) && type_info&.[](attribute.to_sym)&.[](:items_type))
+        items_type = type_info&.[](attribute.to_sym)&.[](:items_type)
+        items_type = swagger_type_from_column_type(items_type)
+      end
+
+      return :string if items_type.blank?
+
+      items_type.to_sym
     end
 
     def swagger_format(column)

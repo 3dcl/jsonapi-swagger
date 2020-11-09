@@ -11,6 +11,11 @@ module Jsonapi
         @jr = jr
       end
 
+      def attribute_type_info
+        return @jr.const_get(:ATTRIBUTE_TYPE_INFO) if @jr.const_defined?(:ATTRIBUTE_TYPE_INFO)
+
+        {}
+      end
       alias attributes _attributes
       alias relationships _relationships
     end

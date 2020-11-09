@@ -36,6 +36,38 @@ Jsonapi::Swagger.config do |config|
 end
 ```
 
+### Overriding Types in Resource Classes
+
+If your resource adds attributes that do not map directly to a database column there are in general no type information attached. As a solution to generate matching json schemas and running specs a const can be defined on your resource class providing a hash with more type info.
+
+*Example for JSONAPI REsources*
+
+```
+class ExampleResource < JSONAPI::Resource
+
+attributes :subscribed,
+  :values
+
+  ATTRIBUTE_TYPE_INFO = {
+    subscribed: :boolean,
+    values: {type: :array, items_type: :float}
+  }
+
+  def subscribed
+    current_user = context[:current_user]
+    return nil if current_user.nil?
+
+    @model.subscribed_by?(current_user)
+  end
+
+  def values
+    # an array of numbers
+    @model.values
+  end
+end
+```
+
+
 2. generate swagger.json
 
 ```sh
