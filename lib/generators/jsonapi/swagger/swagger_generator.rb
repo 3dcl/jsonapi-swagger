@@ -11,7 +11,7 @@ module Jsonapi
       end
     end
 
-    private
+    protected
 
     def doc
       @doc ||= swagger_json.parse_doc
@@ -23,6 +23,18 @@ module Jsonapi
         class_path,
         spec_file_name
       )
+    end
+
+    def spec_before()
+      if defined?(FactoryBot)
+        "@#{model_name} = create :#{model_name}"
+      else
+        "@#{model_name} = #{model_class_name}.create"
+      end
+    end
+
+    def spec_after()
+      ""
     end
 
     def json_file
@@ -180,7 +192,7 @@ module Jsonapi
     def tt(key, options={})
       options[:scope] = :jsonapi_swagger
       options[:default] = key.to_s.humanize
-      I18n.t(key, options)
+      I18n.t(key, **options)
     end
 
     def safe_encode(content)
