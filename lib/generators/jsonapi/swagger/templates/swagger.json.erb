@@ -78,7 +78,13 @@
         attrs.each do |attr|
          columns = columns_with_comment(need_encoding: false)
           props[attr][:type] = columns[attr][:type]
-          props[attr][:items] = { type: columns[attr][:items_type] } if columns[attr][:is_array]
+          if columns[attr][:is_array]
+            items = { type: columns[attr][:items_type] }
+            unless(columns[attr][:items_enum].blank?)
+              items[:enum] = columns[attr][:items_enum]
+            end
+            props[attr][:items] =  items
+          end
           props[attr][:format] = columns[attr][:format] if columns[attr][:format]
           props[attr][:'x-nullable'] = columns[attr][:nullable]
           props[attr][:description] = columns[attr][:comment]

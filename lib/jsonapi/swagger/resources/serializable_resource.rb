@@ -13,7 +13,7 @@ module Jsonapi
       alias attributes attribute_blocks
 
       def attribute_type_info
-        {}
+        {}.with_indifferent_access
       end
       def relationships
         {}.tap do |relations|

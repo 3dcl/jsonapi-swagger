@@ -47,9 +47,27 @@ RSpec.describe '<%= resouces_name %>', type: :request do
                   attributes: {
                     type: :object,
                     properties: {
-                     <% attributes.each_key.each do |attr| -%>
-                     <%= attr %>: { type: :<%= columns_with_comment[attr][:type] %><%if columns_with_comment[attr][:format] -%>, format: '<%=columns_with_comment[attr][:format]%>'<%end-%>, <%if columns_with_comment[attr][:is_array] -%> items: { type: :<%= columns_with_comment[attr][:items_type] %>},<% end -%>'x-nullable': <%= columns_with_comment[attr][:nullable] %>, description: '<%= columns_with_comment[attr][:comment] %>'},
-                     <%end -%>
+<% attributes.each_key.each do |attr| -%>
+                      <%= attr %>: {
+                        type: :<%= columns_with_comment[attr][:type] %>,
+<% if columns_with_comment[attr][:format] -%>
+                        format: :'<%=columns_with_comment[attr][:format]%>',
+<% end -%>
+<% if columns_with_comment[attr][:enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%> "],
+<% end -%>
+<% if columns_with_comment[attr][:is_array] -%>
+                        items: {
+                          type: :<%= columns_with_comment[attr][:items_type] %>
+<% if columns_with_comment[attr][:items_enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+<% end -%>
+                        },
+<% end -%>
+                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                        description: '<%= columns_with_comment[attr][:comment] %>'
+                      },
+<%end -%>
                     },
                     description: '<%= t(:attributes) %>'
                   },
@@ -134,8 +152,26 @@ RSpec.describe '<%= resouces_name %>', type: :request do
                     type: :object,
                     properties: {
 <% attributes.each_key.each do |attr| -%>
-                     <%= attr %>: { type: :<%= columns_with_comment[attr][:type] %>, <%if columns_with_comment[attr][:is_array] -%> items: { type: :<%= columns_with_comment[attr][:items_type] %>},<% end -%>'x-nullable': <%= columns_with_comment[attr][:nullable] %>, description: '<%= columns_with_comment[attr][:comment] %>'<%if columns_with_comment[attr][:format] -%>, format: '<%= columns_with_comment[attr][:format]%>'<% end -%>},
+                      <%= attr %>: {
+                        type: :<%= columns_with_comment[attr][:type] %>,
+<% if columns_with_comment[attr][:format] -%>
+                        format: :'<%=columns_with_comment[attr][:format]%>',
 <% end -%>
+<% if columns_with_comment[attr][:enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%> "],
+<% end -%>
+<% if columns_with_comment[attr][:is_array] -%>
+                        items: {
+                          type: :<%= columns_with_comment[attr][:items_type] %>
+<% if columns_with_comment[attr][:items_enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+<% end -%>
+                        },
+<% end -%>
+                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                        description: '<%= columns_with_comment[attr][:comment] %>'
+                      },
+<%end -%>
                     },
                     description: '<%= t(:attributes) %>'
                   },
@@ -190,11 +226,29 @@ RSpec.describe '<%= resouces_name %>', type: :request do
                       attributes: {
                         type: :object,
                         properties: {
-    <% creatable_fields.each do |field| -%>
-                      <%= field %>: { type: :<%= columns_with_comment[field][:type] %>, <%if columns_with_comment[field][:format]-%> format: <%=columns_with_comment[field][:format]%>,<% end -%><%if columns_with_comment[field][:is_array] -%> items: { type: :<%= columns_with_comment[field][:items_type] %>},<% end -%>'x-nullable': <%= columns_with_comment[field][:nullable] %>, description: '<%= columns_with_comment[field][:comment] %>'},
-    <% end -%>
-                }
+<% createable_fields.each_key.each do |attr| -%>
+                      <%= attr %>: {
+                        type: :<%= columns_with_comment[attr][:type] %>,
+<% if columns_with_comment[attr][:format] -%>
+                        format: :'<%=columns_with_comment[attr][:format]%>',
+<% end -%>
+<% if columns_with_comment[attr][:enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%> "],
+<% end -%>
+<% if columns_with_comment[attr][:is_array] -%>
+                        items: {
+                          type: :<%= columns_with_comment[attr][:items_type] %>
+<% if columns_with_comment[attr][:items_enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+<% end -%>
+                        },
+<% end -%>
+                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                        description: '<%= columns_with_comment[attr][:comment] %>'
                       },
+<%end -%>
+                      }
+                    },
 <% if relationships.present? -%>
                       relationships: {
                         type: :object,
@@ -257,8 +311,26 @@ RSpec.describe '<%= resouces_name %>', type: :request do
                     type: :object,
                     properties: {
 <% attributes.each_key.each do |attr| -%>
-                     <%= attr %>: { type: :<%= columns_with_comment[attr][:type] %> <%if columns_with_comment[attr][:format] %>, format: '<%=columns_with_comment[attr][:format]%>'<%end%><%if columns_with_comment[attr][:is_array] -%>, items: { type: :<%= columns_with_comment[attr][:items_type] %>}<% end -%>, 'x-nullable': <%= columns_with_comment[attr][:nullable] %>, description: '<%= columns_with_comment[attr][:comment] %>'},
+                      <%= attr %>: {
+                        type: :<%= columns_with_comment[attr][:type] %>,
+<% if columns_with_comment[attr][:format] -%>
+                        format: :'<%=columns_with_comment[attr][:format]%>',
 <% end -%>
+<% if columns_with_comment[attr][:enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%> "],
+<% end -%>
+<% if columns_with_comment[attr][:is_array] -%>
+                        items: {
+                          type: :<%= columns_with_comment[attr][:items_type] %>
+<% if columns_with_comment[attr][:items_enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+<% end -%>
+                        },
+<% end -%>
+                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                        description: '<%= columns_with_comment[attr][:comment] %>'
+                      },
+<%end -%>
                     },
                     description: '<%= t(:attributes) %>'
                   },
@@ -313,10 +385,27 @@ path '/<%= route_resouces %>/{id}' do
                       attributes: {
                         type: :object,
                         properties: {
-    <% creatable_fields.each do |field| -%>
-                      <%= field %>: { type: :<%= columns_with_comment[field][:type] %><%if columns_with_comment[field][:format] -%>, format: '<%=columns_with_comment[field][:format]%>'<%end-%>, 
-                        <%if columns_with_comment[field][:is_array] -%> items: { type: :<%= columns_with_comment[field][:items_type] %>},<% end -%>'x-nullable': <%= columns_with_comment[field][:nullable] %>, description: '<%= columns_with_comment[field][:comment] %>'},
-    <% end -%>
+<% createable_fields.each_key.each do |attr| -%>
+                      <%= attr %>: {
+                        type: :<%= columns_with_comment[attr][:type] %>,
+<% if columns_with_comment[attr][:format] -%>
+                        format: :'<%=columns_with_comment[attr][:format]%>',
+<% end -%>
+<% if columns_with_comment[attr][:enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%> "],
+<% end -%>
+<% if columns_with_comment[attr][:is_array] -%>
+                        items: {
+                          type: :<%= columns_with_comment[attr][:items_type] %>
+<% if columns_with_comment[attr][:items_enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+<% end -%>
+                        },
+<% end -%>
+                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                        description: '<%= columns_with_comment[attr][:comment] %>'
+                      },
+<%end -%>
                 }
                       },
 <% if relationships.present? -%>
@@ -381,8 +470,26 @@ path '/<%= route_resouces %>/{id}' do
                     type: :object,
                     properties: {
 <% attributes.each_key.each do |attr| -%>
-                     <%= attr %>: { type: :<%= columns_with_comment[attr][:type] %><%if columns_with_comment[attr][:format] %>, format: '<%=columns_with_comment[attr][:format]%>'<%end%>, <%if columns_with_comment[attr][:is_array] -%> items: { type: :<%= columns_with_comment[attr][:items_type] %>},<% end -%>'x-nullable': <%= columns_with_comment[attr][:nullable] %>, description: '<%= columns_with_comment[attr][:comment] %>'},
+                      <%= attr %>: {
+                        type: :<%= columns_with_comment[attr][:type] %>,
+<% if columns_with_comment[attr][:format] -%>
+                        format: :'<%=columns_with_comment[attr][:format]%>',
 <% end -%>
+<% if columns_with_comment[attr][:enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%> "],
+<% end -%>
+<% if columns_with_comment[attr][:is_array] -%>
+                        items: {
+                          type: :<%= columns_with_comment[attr][:items_type] %>
+<% if columns_with_comment[attr][:items_enum] -%>
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+<% end -%>
+                        },
+<% end -%>
+                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                        description: '<%= columns_with_comment[attr][:comment] %>'
+                      },
+<%end -%>
                     },
                     description: '<%= t(:attributes) %>'
                   },

@@ -137,6 +137,7 @@ module Jsonapi
     end
 
     def columns_with_comment(need_encoding: true)
+      type_info = resource_klass.attribute_type_info
       @columns_with_comment ||= {}.tap do |clos|
         clos.default_proc = proc do |h, k|
             t = swagger_type(nil, k.to_s)
@@ -144,15 +145,22 @@ module Jsonapi
             if(t == :array)
               attr_descr[:items_type] = array_items_type(k, nil)
             end
+            comment = column_comment(nil, k)
+            attr_descr[:comment] = comment if comment
+            enum_values = column_value_enum(nil, k)
+            attr_descr[:enum] = column_value_enum(nil, k) unless enum_values.blank?
+            
             h[k] = attr_descr
         end
         model_klass.columns.each do |col|
           col_name = transform_method ? col.name.send(transform_method) : col.name
-          clos[col_name.to_sym] = { type: swagger_type(col, col_name),
+          clos[col_name.to_sym] = {
+            type: swagger_type(col, col_name),
             items_type: array_items_type(col_name, col),
             is_array: col.array,
             nullable: col.null,
-            comment: col.comment
+            comment: column_comment(col, col_name),
+            enum: column_value_enum(col, col_name)
           }
           format = swagger_format(col)
           clos[col_name.to_sym][:format] = format unless format.nil?
@@ -168,6 +176,28 @@ module Jsonapi
       end
     end
 
+    def column_comment(col, col_name)
+      type_info = resource_klass.attribute_type_info[col_name.to_sym]
+      comment = if(type_info.is_a?(Hash))
+        resource_klass.attribute_type_info[col_name.to_sym]&.[](:comment)
+      else
+        nil
+      end
+
+      comment ||= col&.comment
+      comment
+    end
+
+    def column_value_enum(col, col_name)
+      type_info = resource_klass.attribute_type_info[col_name.to_sym]
+
+      if(type_info.is_a?(Hash))
+        resource_klass.attribute_type_info[col_name.to_sym]&.[](:enum)
+      else
+        nil
+      end
+    end
+
     def swagger_type(column, name = nil)
       name ||= column&.name
       return :array if column&.array
@@ -179,6 +209,7 @@ module Jsonapi
       if(!type_info[name.to_sym].blank?)
         t = type_info[name.to_sym]
         return t[:type] if(t.is_a?(Hash))
+
         return t
       elsif(!type.nil?)
         type
@@ -187,13 +218,13 @@ module Jsonapi
       end
     end
 
-    # derives the swagger attribute type from AR database column type
+    # derives the swagger attribute type from AR database column type, also accepts json schema types
     def swagger_type_from_column_type(type)
-      case type
+      case type&.to_sym
       when :bigint, :integer, :primary_key then 'integer'
       when :boolean          then 'boolean'
-      when :real, :float, :decimal, :bigdecimal  then 'number'
-      when :jsonb, :json          then 'object'
+      when :real, :number, :float, :decimal, :bigdecimal  then 'number'
+      when :object, :jsonb, :json          then 'object'
       else
         nil
       end
@@ -207,7 +238,7 @@ module Jsonapi
 
       if(type_info && type_info&.[](attribute.to_sym).is_a?(Hash) && type_info&.[](attribute.to_sym)&.[](:items_type))
         items_type = type_info&.[](attribute.to_sym)&.[](:items_type)
-        items_type = swagger_type_from_column_type(items_type)
+        items_type = swagger_type_from_column_type(items_type) if items_type
       end
 
       return :string if items_type.blank?

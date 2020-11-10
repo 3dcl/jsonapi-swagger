@@ -17,7 +17,7 @@ module Jsonapi
       # TODO: fast_jsonapi resource
 
       def attribute_type_info
-        {}
+        {}.with_indifferent_access
       end
       def sortable_fields
         []
