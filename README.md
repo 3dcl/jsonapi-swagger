@@ -49,8 +49,11 @@ attributes :subscribed,
   :values
 
   ATTRIBUTE_TYPE_INFO = {
-    subscribed: :boolean,
-    values: {type: :array, items_type: :float}
+    subscribed: { type: :boolean},
+    values: {type: :array, 
+      items_type: :float, 
+      comment: 'Explanatory comment, overrides stored database column comment'
+    }
   }
 
   def subscribed
