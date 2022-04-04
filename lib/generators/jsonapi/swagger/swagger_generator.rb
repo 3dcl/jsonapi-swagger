@@ -24,7 +24,7 @@ module Jsonapi
       )
     end
 
-    def spec_before()
+    def spec_before
       if defined?(FactoryBot)
         "@#{model_name} = create :#{model_name}"
       else
@@ -32,8 +32,8 @@ module Jsonapi
       end
     end
 
-    def spec_after()
-      ""
+    def spec_after
+      ''
     end
 
     def json_file
@@ -81,7 +81,7 @@ module Jsonapi
     end
 
     def model_class_name
-      (class_path + [file_name]).map!(&:camelize).join("::")
+      (class_path + [file_name]).map!(&:camelize).join('::')
     end
 
     def sortable_fields_desc
@@ -140,62 +140,62 @@ module Jsonapi
       type_info = resource_klass.attribute_type_info
       @columns_with_comment ||= {}.tap do |clos|
         clos.default_proc = proc do |h, k|
-            t = swagger_type(nil, k.to_s)
-            attr_descr = attribute_default.merge(type: t, is_array: t == :array)
-            if(t == :array)
-              attr_descr[:items_type] = array_items_type(k, nil)
-            end
-            comment = column_comment(nil, k)
-            attr_descr[:comment] = comment if comment
-            enum_values = column_value_enum(nil, k)
-            attr_descr[:enum] = column_value_enum(nil, k) unless enum_values.blank?
-            
-            h[k] = attr_descr
+          t = swagger_type(nil, k.to_s)
+          attr_descr = attribute_default.merge(type: t, is_array: t == :array)
+          attr_descr[:items_type] = array_items_type(k, nil) if t == :array
+          comment = column_comment(nil, k)
+          attr_descr[:comment] = comment if comment
+          enum_values = column_value_enum(nil, k)
+          attr_descr[:enum] = column_value_enum(nil, k) if enum_values.present?
+
+          h[k] = attr_descr
         end
         model_klass.columns.each do |col|
           col_name = transform_method ? col.name.send(transform_method) : col.name
+
+          is_array = col.respond_to?(:array) ? col.array : false
           clos[col_name.to_sym] = {
             type: swagger_type(col, col_name),
             items_type: array_items_type(col_name, col),
-            is_array: col.array,
+            is_array: is_array,
             nullable: col.null,
             comment: column_comment(col, col_name),
             enum: column_value_enum(col, col_name)
           }
           format = swagger_format(col)
           clos[col_name.to_sym][:format] = format unless format.nil?
-          clos[col_name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
 
+          clos[col_name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
         end
-        model_klass.translation_class.columns.each do |col|
-          if model_klass.translated_attribute_names.include? col.name.to_sym
-            clos[col.name.to_sym] = { type: swagger_type(col, col.name), items_type: col.type, is_array: col.array,  nullable: col.null, comment: col.comment }
+        if model_klass.respond_to? :translation_class
+          model_klass.translation_class.columns.each do |col|
+            next unless model_klass.translated_attribute_names.include? col.name.to_sym
+
+            clos[col.name.to_sym] =
+              { type: swagger_type(col, col.name), items_type: col.type, is_array: col.array, nullable: col.null,
+                comment: col.comment }
             clos[col.name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
           end
-        end if model_klass.respond_to? :translation_class
+        end
       end
     end
 
-    def column_comment(col, col_name)
+    def column_comment(_col, col_name)
       type_info = resource_klass.attribute_type_info[col_name.to_sym]
-      comment = if(type_info.is_a?(Hash))
-        resource_klass.attribute_type_info[col_name.to_sym]&.[](:comment)
-      else
-        nil
-      end
+      comment = (resource_klass.attribute_type_info[col_name.to_sym]&.[](:comment) if type_info.is_a?(Hash))
+    end
+
+    def swagger_type(column)
+      return 'array' if column.respond_to?(:array) && column.array
 
       comment ||= col&.comment
       comment
     end
 
-    def column_value_enum(col, col_name)
+    def column_value_enum(_col, col_name)
       type_info = resource_klass.attribute_type_info[col_name.to_sym]
 
-      if(type_info.is_a?(Hash))
-        resource_klass.attribute_type_info[col_name.to_sym]&.[](:enum)
-      else
-        nil
-      end
+      resource_klass.attribute_type_info[col_name.to_sym]&.[](:enum) if type_info.is_a?(Hash)
     end
 
     def swagger_type(column, name = nil)
@@ -206,12 +206,12 @@ module Jsonapi
 
       type_info = resource_klass.attribute_type_info
 
-      if(!type_info[name.to_sym].blank?)
+      if type_info[name.to_sym].present?
         t = type_info[name.to_sym]
-        return t[:type] if(t.is_a?(Hash))
+        return t[:type] if t.is_a?(Hash)
 
-        return t
-      elsif(!type.nil?)
+        t
+      elsif !type.nil?
         type
       else
         :string
@@ -222,11 +222,9 @@ module Jsonapi
     def swagger_type_from_column_type(type)
       case type&.to_sym
       when :bigint, :integer, :primary_key then 'integer'
-      when :boolean          then 'boolean'
-      when :real, :number, :float, :decimal, :bigdecimal  then 'number'
-      when :object, :jsonb, :json          then 'object'
-      else
-        nil
+      when :boolean then 'boolean'
+      when :real, :number, :float, :decimal, :bigdecimal then 'number'
+      when :object, :jsonb, :json then 'object'
       end
     end
 
@@ -236,7 +234,7 @@ module Jsonapi
 
       type_info = resource_klass.attribute_type_info
 
-      if(type_info && type_info&.[](attribute.to_sym).is_a?(Hash) && type_info&.[](attribute.to_sym)&.[](:items_type))
+      if type_info && type_info&.[](attribute.to_sym).is_a?(Hash) && type_info&.[](attribute.to_sym)&.[](:items_type)
         items_type = type_info&.[](attribute.to_sym)&.[](:items_type)
         items_type = swagger_type_from_column_type(items_type) if items_type
       end
@@ -251,21 +249,20 @@ module Jsonapi
       when :date then 'date'
       when :datetime then 'datetime'
       when :float then 'double'
-      else
-        nil
       end
     end
+
     def relation_table_name(relation)
       return relation.class_name.tableize if relation.respond_to?(:class_name)
       return relation.name if relation.respond_to?(:name)
     end
 
-    def t(key, options={})
+    def t(key, options = {})
       content = tt(key, options)
       safe_encode(content)
     end
 
-    def tt(key, options={})
+    def tt(key, options = {})
       options[:scope] = :jsonapi_swagger
       options[:default] = key.to_s.humanize
       I18n.t(key, **options)
