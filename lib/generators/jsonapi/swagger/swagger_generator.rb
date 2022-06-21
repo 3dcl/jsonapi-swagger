@@ -93,7 +93,7 @@ module Jsonapi
     end
 
     def model_klass
-      file_name.camelize.safe_constantize
+      @model_klass ||= model_class_name.safe_constantize
     end
 
     def resource_klass
