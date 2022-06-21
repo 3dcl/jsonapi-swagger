@@ -77,8 +77,8 @@ module Jsonapi
     end
 
     def route_resources
-      # use unscoped routes for 
-      resources_name.tableize.split('/').last
+      # use unscoped routes to handle module scoped model class names. e.g. Admin::User
+      class_name_to_resource_name(resources_name)
     end
 
     def model_class_name
@@ -253,8 +253,12 @@ module Jsonapi
       end
     end
 
+    def class_name_to_resource_name(class_name)
+      class_name.tableize.split('/').last
+    end
+
     def relation_table_name(relation)
-      return relation.class_name.tableize if relation.respond_to?(:class_name)
+      return class_name_to_resource_name(relation.class_name) if relation.respond_to?(:class_name)
       return relation.name if relation.respond_to?(:name)
     end
 
