@@ -72,12 +72,13 @@ module Jsonapi
       file_name.downcase.singularize
     end
 
-    def resouces_name
+    def resources_name
       model_class_name.pluralize
     end
 
-    def route_resouces
-      resouces_name.tableize
+    def route_resources
+      # use unscoped routes for 
+      resources_name.tableize.split('/').last
     end
 
     def model_class_name
