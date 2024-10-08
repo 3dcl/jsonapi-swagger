@@ -1,0 +1,67 @@
+{
+  
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "ID"},
+    "type": { "type": "string", "description": "Type"},
+    "links": {
+      "type": "object",
+      "properties": {
+        "self": { "type": "string", "description": "<%= t(:detail_link) %>"}
+      },
+      "description": "<%= t(:detail_link) %>"
+    },
+    "attributes": {
+      "type": "object",
+      "properties":
+        <%= JSON.pretty_generate(attributes.keys.map do |attr|
+
+                      fields = [["type", columns_with_comment[attr][:type]]]
+
+                      if columns_with_comment[attr][:format].present?
+                        fields << ["format", columns_with_comment[attr][:format]]
+                      end
+
+                      if columns_with_comment[attr][:enum].present?
+                        fields << ["enum", columns_with_comment[attr][:enum]]
+                      end
+
+                      if columns_with_comment[attr][:is_array]
+                        item_fields = [["type", columns_with_comment[attr][:items_type]]]
+
+                        if columns_with_comment[attr][:items_enum]
+                          item_fields << ["enum", columns_with_comment[attr][:items_enum]]
+                        end
+
+                        fields << ["items", item_fields.to_h]
+                      end
+                      fields << ['x-nullable', columns_with_comment[attr][:nullable]]
+                      if(columns_with_comment[attr][:comment].present? || columns_with_comment[attr][:description].present?)
+                        text = columns_with_comment[attr][:comment].presence || columns_with_comment[attr][:description]
+                        fields << ["description",  text]
+                      end
+
+                      [attr, fields.to_h]
+
+        end.to_h) %>
+      ,
+      "description": "<%= t(:attributes) %>"
+    },
+    "relationships": {
+      "type": "object",
+      "properties":
+<%= JSON.pretty_generate(relationships.map do |relation_name, relation|
+relation_name_camelize = relation_name.to_s.camelize
+[relation_name, {
+
+          "$ref": "#/components/schemas/jsonapi_associated_object_link"
+        }]
+end.to_h) -%>
+      ,
+      "description": "<%= t(:associate_data) %>"
+    }
+}
+
+}
+
+

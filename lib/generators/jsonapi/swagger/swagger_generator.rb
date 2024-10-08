@@ -5,6 +5,8 @@ module Jsonapi
     def create_swagger_file
       if Jsonapi::Swagger.use_rswag
         template 'swagger.rb.erb', spec_file
+        template 'swagger_types.schmema.json.erb', spec_types_file
+        template 'common_types_jsonapi.schema.json.erb', common_types_file
       else
         template 'swagger.json.erb', json_file
       end
@@ -21,6 +23,21 @@ module Jsonapi
         'spec/requests',
         class_path,
         spec_file_name
+      )
+    end
+
+    def spec_types_file
+      @spec_schema_type_file ||= File.join(
+        'config/schemas/openapi/types',
+        class_path,
+        schema_type_file_name
+      )
+    end
+
+    def common_types_file
+      @common_types_file ||= File.join(
+        'config/schemas/openapi/types',
+        'common_json_api.schema.json'
       )
     end
 
@@ -66,6 +83,10 @@ module Jsonapi
 
     def spec_file_name
       "#{file_name.downcase.pluralize}_spec.rb"
+    end
+
+    def schema_type_file_name
+      "#{file_name.downcase.pluralize}.schema.json"
     end
 
     def model_name
@@ -138,7 +159,7 @@ module Jsonapi
     end
 
     def columns_with_comment(need_encoding: true)
-      type_info = resource_klass.attribute_type_info
+      resource_klass.attribute_type_info
       @columns_with_comment ||= {}.tap do |clos|
         clos.default_proc = proc do |h, k|
           t = swagger_type(nil, k.to_s)
@@ -183,7 +204,7 @@ module Jsonapi
 
     def column_comment(_col, col_name)
       type_info = resource_klass.attribute_type_info[col_name.to_sym]
-      comment = (resource_klass.attribute_type_info[col_name.to_sym]&.[](:comment) if type_info.is_a?(Hash))
+      (resource_klass.attribute_type_info[col_name.to_sym]&.[](:comment) if type_info.is_a?(Hash))
     end
 
     def swagger_type(column)
@@ -259,7 +280,8 @@ module Jsonapi
 
     def relation_table_name(relation)
       return class_name_to_resource_name(relation.class_name) if relation.respond_to?(:class_name)
-      return relation.name if relation.respond_to?(:name)
+
+      relation.name if relation.respond_to?(:name)
     end
 
     def t(key, options = {})
