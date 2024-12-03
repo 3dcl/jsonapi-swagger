@@ -5,8 +5,9 @@ module Jsonapi
     def create_swagger_file
       if Jsonapi::Swagger.use_rswag
         template 'swagger.rb.erb', spec_file
-        template 'swagger_types.schmema.json.erb', spec_types_file
+        template 'swagger_types.schema.json.erb', spec_types_file
         template 'common_types_jsonapi.schema.json.erb', common_types_file
+
       else
         template 'swagger.json.erb', json_file
       end
@@ -41,13 +42,7 @@ module Jsonapi
       )
     end
 
-    def spec_before
-      if defined?(FactoryBot)
-        "@#{model_name} = create :#{model_name}"
-      else
-        "@#{model_name} = #{model_class_name}.create"
-      end
-    end
+    def spec_data; end
 
     def spec_after
       ''

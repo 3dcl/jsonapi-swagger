@@ -1,0 +1,15 @@
+
+
+let(:data) do
+  # data for post requests
+
+  data = { data: {
+    type: '<%= route_resources %>',
+    attributes: <%= FactoryBot.attributes_for(model_name.to_sym).select{|k,v| creatable_fields.map(&:to_sym).include?(k) }.map{|k,v| [k, v.is_a?(Time) ? v.iso8601 : v]}.to_h %>
+  } }
+
+  # add id if the request did set the ID, e.g., for updates
+  data[:data][:id] = id if id.present?
+  
+  data
+end

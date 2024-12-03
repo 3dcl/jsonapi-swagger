@@ -36,40 +36,6 @@ Jsonapi::Swagger.config do |config|
 end
 ```
 
-### Overriding Types in Resource Classes
-
-If your resource adds attributes that do not map directly to a database column there are in general no type information attached. As a solution to generate matching json schemas and running specs a const can be defined on your resource class providing a hash with more type info.
-
-*Example for JSONAPI REsources*
-
-```
-class ExampleResource < JSONAPI::Resource
-
-attributes :subscribed,
-  :values
-
-  ATTRIBUTE_TYPE_INFO = {
-    subscribed: { type: :boolean},
-    values: {type: :array, 
-      items_type: :float, 
-      comment: 'Explanatory comment, overrides stored database column comment'
-    }
-  }
-
-  def subscribed
-    current_user = context[:current_user]
-    return nil if current_user.nil?
-
-    @model.subscribed_by?(current_user)
-  end
-
-  def values
-    # an array of numbers
-    @model.values
-  end
-end
-```
-
 
 2. generate swagger.json
 
@@ -150,6 +116,60 @@ RSpec.configure do |config|
   }
 end
 ```
+
+## Customization 
+
+### Overriding Types in Resource Classes
+
+If your resource adds attributes that do not map directly to a database column there are in general no type information attached. As a solution to generate matching json schemas and running specs a const can be defined on your resource class providing a hash with more type info.
+
+*Example for JSONAPI REsources*
+
+```
+class ExampleResource < JSONAPI::Resource
+
+attributes :subscribed,
+  :values
+
+  ATTRIBUTE_TYPE_INFO = {
+    subscribed: { type: :boolean},
+    values: {type: :array, 
+      items_type: :float, 
+      comment: 'Explanatory comment, overrides stored database column comment'
+    }
+  }
+
+  def subscribed
+    current_user = context[:current_user]
+    return nil if current_user.nil?
+
+    @model.subscribed_by?(current_user)
+  end
+
+  def values
+    # an array of numbers
+    @model.values
+  end
+end
+```
+
+### Before, After and POST / PATCH data
+
+As it cannot be forseen what is necessary to create a certain resource, there are several methods to adjust the generated code to provide an individual setup for models and to accommodate your authentication / authorization framework
+
+The generated code for before action ```before { ... }```, after action ```after { ... } ``` and data definition ```let(:data){ ... }``` are created using corresponding templates:
+
+* ```swagger_before.rb.erb```
+* ```swagger_after.rb.erb```
+* ```swagger_data.rb.erb```
+
+It is possible to override them by creating corresponding custom files in lib/generators/jsonapi/swagger/templates
+
+In case you need custom code per resource, create a custom file for resource that preceedes the general templates
+
+* ```swagger_before_{resources_name}.rb.erb```
+* ```swagger_after_{resources_name}.rb.erb```
+* ```swagger_data_{resources_name}.rb.erb```
 
 ## RoadMap
 
