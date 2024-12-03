@@ -74,6 +74,7 @@ RSpec.configure do |config|
   Dir.glob(Rails.root.join("config", "schemas", "openapi", "types", "**.schema.json")).each do |file|
 
     resource_name = file.split("/").last.split(".").first
+    # do not double include the jsonapi types
     next if(resource_name == "common_json_api")
 
     schema = JSON.parse(File.read(file))
@@ -104,7 +105,7 @@ RSpec.configure do |config|
         "url": "{protocol}://{host}/api",
         "variables": {
           "protocol": {
-            "enum": ["http", "https"],
+            "enum": ["https"],
             "default": "https"
           },
           "host": {

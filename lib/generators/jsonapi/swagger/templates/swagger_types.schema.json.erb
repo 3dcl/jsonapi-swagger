@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "id": { "type": "string", "description": "ID"},
-    "type": { "const": "<%=resources_name %>"},
+    "type": { "type":  "string", "enum": ["<%=resources_name %>"]},
     "links": {
       "type": "object",
       "properties": {
@@ -23,10 +23,6 @@
 
           if columns_with_comment[attr][:enum].present?
             fields << ["enum", columns_with_comment[attr][:enum]]
-          end
-
-          if columns_with_comment[attr][:const].present?
-            fields << ["const", columns_with_comment[attr][:const]]
           end
 
           if columns_with_comment[attr][:is_array]
