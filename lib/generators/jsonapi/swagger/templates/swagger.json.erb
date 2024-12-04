@@ -8,7 +8,7 @@
         parameters << { name: 'page[number]', in: :query, type: :string, description: tt(:page_num), required: false }
         parameters << { name: 'page[size]', in: :query, type: :string, description: tt(:page_size), required: false }
         if sortable_fields.present?
-          parameters << { name: 'sort', in: :query, type: :string, description: ori_sortable_fields_desc, required: false }
+          parameters << { name: :sort, in: :query, type: :string, description: ori_sortable_fields_desc, required: false }
         end
         if relationships.present?
           parameters << { name: :include, in: :query, type: :string, description: tt(:include_related_data), required: false }

@@ -92,6 +92,10 @@ module Jsonapi
       model_class_name.pluralize
     end
 
+    def resource_type_name
+      resources_name.underscore
+    end
+
     def route_resources
       # use unscoped routes to handle module scoped model class names. e.g. Admin::User
       class_name_to_resource_name(resources_name)
