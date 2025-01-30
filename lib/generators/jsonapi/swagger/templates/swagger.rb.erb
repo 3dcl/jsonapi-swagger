@@ -16,20 +16,20 @@ RSpec.describe '<%= resources_name %>', type: :request do
   %>
 
 
-  # any before action. 
+  # any before action.
   # to customized the generated files create a file named swagger_before.rb.erb in lib/generators/jsonapi/swagger/templates
-  # or create a file named swagger_before_{resources_name}.rb in lib/generators/jsonapi/swagger/templates  
+  # or create a file named swagger_before_{resources_name}.rb in lib/generators/jsonapi/swagger/templates
   <%= ERB.new(File.open(begin
     find_in_source_paths("swagger_before_#{resources_name.underscore}.rb.erb")
   rescue => e
     find_in_source_paths("swagger_before.rb.erb")
   end).read).result(binding)
   %>
-  
 
-  # any before action. 
+
+  # any before action.
   # to customized the generated files create a file named swagger_before.rb.erb in lib/generators/jsonapi/swagger/templates
-  # or create a file named swagger_before_{resources_name}.rb in lib/generators/jsonapi/swagger/templates  
+  # or create a file named swagger_before_{resources_name}.rb in lib/generators/jsonapi/swagger/templates
   <%= ERB.new(File.open(begin
     find_in_source_paths("swagger_after_#{resources_name.underscore}.rb.erb")
   rescue => e
@@ -218,7 +218,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
                   attributes: {
                     type: :object,
                     properties: {
-<% attributes.each do |attr| -%>
+<% attributes.each_key do |attr| -%>
                       <%= attr %>: {
                         type: :<%= columns_with_comment[attr][:type] %>,
 <% if columns_with_comment[attr][:format] -%>
@@ -293,7 +293,7 @@ path '/<%= route_resources %>/{id}' do
                       attributes: {
                         type: :object,
                         properties: {
-<% updateable.each do |attr| -%>
+<% updatable_fields.each do |attr| -%>
                       <%= attr %>: {
                         type: :<%= columns_with_comment[attr][:type] %>,
 <% if columns_with_comment[attr][:format] -%>
@@ -377,7 +377,7 @@ path '/<%= route_resources %>/{id}' do
                   attributes: {
                     type: :object,
                     properties: {
-<% attributes.each do |attr| -%>
+<% attributes.each_key do |attr| -%>
                       <%= attr %>: {
                         type: :<%= columns_with_comment[attr][:type] %>,
 <% if columns_with_comment[attr][:format] -%>
