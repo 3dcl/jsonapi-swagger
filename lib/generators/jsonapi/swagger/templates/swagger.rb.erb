@@ -218,7 +218,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
                   attributes: {
                     type: :object,
                     properties: {
-<% attributes.each_key.each do |attr| -%>
+<% attributes.each do |attr| -%>
                       <%= attr %>: {
                         type: :<%= columns_with_comment[attr][:type] %>,
 <% if columns_with_comment[attr][:format] -%>
@@ -293,7 +293,7 @@ path '/<%= route_resources %>/{id}' do
                       attributes: {
                         type: :object,
                         properties: {
-<% creatable_fields.each do |attr| -%>
+<% updateable.each do |attr| -%>
                       <%= attr %>: {
                         type: :<%= columns_with_comment[attr][:type] %>,
 <% if columns_with_comment[attr][:format] -%>
@@ -377,7 +377,7 @@ path '/<%= route_resources %>/{id}' do
                   attributes: {
                     type: :object,
                     properties: {
-<% attributes.each_key.each do |attr| -%>
+<% attributes.each do |attr| -%>
                       <%= attr %>: {
                         type: :<%= columns_with_comment[attr][:type] %>,
 <% if columns_with_comment[attr][:format] -%>
