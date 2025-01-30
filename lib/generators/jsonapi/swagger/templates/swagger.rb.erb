@@ -7,7 +7,9 @@ RSpec.describe '<%= resources_name %>', type: :request do
   # default value for id is nil, you can set it in the context block in order to test the show, update, destroy actions
   let(:id){ nil }
 
-  # add data for post or patch
+  # add data for post or patch  
+  # to customized the generated files create a file named swagger_data.rb.erb in lib/templates/jsonapi/swagger
+  # or create a file named swagger_data_{resources_name}.rb in lib/templates/jsonapi/swagger
   <%= ERB.new(File.open(begin
       find_in_source_paths("swagger_data_#{resources_name.underscore}.rb.erb")
     rescue => e
@@ -17,8 +19,8 @@ RSpec.describe '<%= resources_name %>', type: :request do
 
 
   # any before action.
-  # to customized the generated files create a file named swagger_before.rb.erb in lib/generators/jsonapi/swagger/templates
-  # or create a file named swagger_before_{resources_name}.rb in lib/generators/jsonapi/swagger/templates
+  # to customized the generated files create a file named swagger_before.rb.erb in lib/templates/jsonapi/swagger
+  # or create a file named swagger_before_{resources_name}.rb in lib/templates/jsonapi/swagger
   <%= ERB.new(File.open(begin
     find_in_source_paths("swagger_before_#{resources_name.underscore}.rb.erb")
   rescue => e
@@ -28,8 +30,8 @@ RSpec.describe '<%= resources_name %>', type: :request do
 
 
   # any before action.
-  # to customized the generated files create a file named swagger_before.rb.erb in lib/generators/jsonapi/swagger/templates
-  # or create a file named swagger_before_{resources_name}.rb in lib/generators/jsonapi/swagger/templates
+  # to customized the generated files create a file named swagger_after.rb.erb in lib/templates/jsonapi/swagger
+  # or create a file named swagger_after_{resources_name}.rb in lib/templates/jsonapi/swagger
   <%= ERB.new(File.open(begin
     find_in_source_paths("swagger_after_#{resources_name.underscore}.rb.erb")
   rescue => e
