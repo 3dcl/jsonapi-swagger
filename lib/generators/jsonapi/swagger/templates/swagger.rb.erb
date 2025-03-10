@@ -49,7 +49,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
       parameter name: :sort, in: :query, description: '<%= sortable_fields_desc %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= sortable_fields.map{|f| ["'-#{safe_encode(f.to_s)}'", "'#{safe_encode(f.to_s)}'"]}.flatten.join(',') %> ]}}
 <% end -%>
 <% if relationships.present? -%>
-      parameter name: :include, in: :query, type: :array, description: '<%= t(:include_related_data) %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
+      parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
 <% filters.each do |filter_attr, filter_config| -%>
       parameter name: :'filter[<%= filter_attr %>]', in: :query, type: :string, description: '<%= t(:filter_field) %>', <% if filter_config[:default] -%>default: '<%= safe_encode(filter_config[:default]) %>',<% end %>required: false
@@ -96,7 +96,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
       produces 'application/vnd.api+json'
       parameter name: :id, in: :path, type: :integer, description: 'ID', required: true
 <% if relationships.present? -%>
-      parameter name: :include, in: :query, type: :array, description: '<%= t(:include_related_data) %>', required: false, schema: {type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
+      parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: {type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
       parameter name: :'fields[<%= route_resources %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% relationships.each_value do |relation| -%>
