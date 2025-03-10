@@ -4,6 +4,15 @@ RSpec.describe '<%= resources_name %>', type: :request do
   let(:include) {[]} #see https://github.com/domaindrivendev/rswag/issues/188
 
 
+  # try to find a swagger_base, e.g., to build common data
+  # enable generated section create a file named swagger_base.rb.erb in lib/templates/jsonapi/swagger  
+  <%= ERB.new(File.open(begin
+    find_in_source_paths("swagger_base.rb.erb")
+  rescue => e
+  end).read).result(binding)
+  %>
+
+
   # default value for id is nil, you can set it in the context block in order to test the show, update, destroy actions
   let(:id){ nil }
 

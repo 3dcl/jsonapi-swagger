@@ -159,7 +159,7 @@ end
 As it cannot be forseen what is necessary to create a certain resource, there are several methods to adjust the generated code to provide an individual setup for models and to accommodate your authentication / authorization framework
 
 The generated code for before action ```before { ... }```, after action ```after { ... } ``` and data definition ```let(:data){ ... }``` are created using corresponding templates:
-
+* ```swagger_base.rb.erb``` - optional base data and defintions to put on top of each generated spec
 * ```swagger_before.rb.erb```
 * ```swagger_after.rb.erb```
 * ```swagger_data.rb.erb```
