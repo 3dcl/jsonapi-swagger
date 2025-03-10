@@ -156,7 +156,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
                         items: {
                           type: :<%= columns_with_comment[attr][:items_type] %>
 <% if columns_with_comment[attr][:items_enum] -%>
-                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%> "],
+                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%>"],
 <% end -%>
                         },
 <% end -%>
