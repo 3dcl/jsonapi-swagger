@@ -129,6 +129,14 @@ module Jsonapi
       resource_klass.relationships
     end
 
+    def relationship_resource_names
+      relationships.values.map { |relation| relation_resource_name(relation) }
+    end
+
+    def relationship_table_names
+      relationships.values.map { |relation| relation_resource_name(relation) }
+    end
+
     def sortable_fields
       resource_klass.sortable_fields
     end
@@ -277,11 +285,13 @@ module Jsonapi
       class_name.tableize.split('/').last
     end
 
-    def relation_table_name(relation)
+    def relation_resource_name(relation)
       return class_name_to_resource_name(relation.class_name) if relation.respond_to?(:class_name)
 
       relation.name if relation.respond_to?(:name)
     end
+
+    alias relation_table_name relation_resource_name
 
     def t(key, options = {})
       content = tt(key, options)

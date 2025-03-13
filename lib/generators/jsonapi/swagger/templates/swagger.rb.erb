@@ -64,8 +64,9 @@ RSpec.describe '<%= resources_name %>', type: :request do
       parameter name: :'filter[<%= filter_attr %>]', in: :query, type: :string, description: '<%= t(:filter_field) %>', <% if filter_config[:default] -%>default: '<%= safe_encode(filter_config[:default]) %>',<% end %>required: false
 <% end -%>
       parameter name: :'fields[<%= route_resources %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
-<% relationships.each_value do |relation| -%>
-      parameter name: :'fields[<%= relation_table_name(relation) %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
+<% # as there might be multiple relations with the same resource, we make add only unique items%>
+<% relationship_table_names.uniq.each do |relation_table_name| -%>
+      parameter name: :'fields[<%= relation_table_name %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% end -%>
       response '200', '<%= t(:get_list) %>' do
           schema type: :object,
@@ -108,8 +109,8 @@ RSpec.describe '<%= resources_name %>', type: :request do
       parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: {type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
       parameter name: :'fields[<%= route_resources %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
-<% relationships.each_value do |relation| -%>
-      parameter name: :'fields[<%= relation_table_name(relation) %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
+<% relationship_table_names.uniq.each do |relation_table_name| -%>
+      parameter name: :'fields[<%= relation_table_name %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% end -%>
       response '200', '<%= t(:get_detail) %>' do
         schema type: "object",
