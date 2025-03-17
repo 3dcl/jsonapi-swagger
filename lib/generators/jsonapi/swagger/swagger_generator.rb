@@ -89,7 +89,7 @@ module Jsonapi
     end
 
     def resources_name
-      model_class_name.pluralize
+      model_class_name.demodulize.pluralize
     end
 
     def resource_type_name
