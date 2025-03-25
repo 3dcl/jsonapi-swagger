@@ -1,5 +1,5 @@
 {
-  
+
   "type": "object",
   "properties": {
     "id": { "type": "string", "description": "ID"},
@@ -19,6 +19,10 @@
           fields = [["type", columns_with_comment[attr][:type]]]
           if columns_with_comment[attr][:format].present?
             fields << ["format", columns_with_comment[attr][:format]]
+          end
+
+          if columns_with_comment[attr][:properties].present?
+            fields << ["properties", columns_with_comment[attr][:properties]]
           end
 
           if columns_with_comment[attr][:enum].present?

@@ -172,6 +172,7 @@ module Jsonapi
 
     def columns_with_comment(need_encoding: true)
       resource_klass.attribute_type_info
+
       @columns_with_comment ||= {}.tap do |clos|
         clos.default_proc = proc do |h, k|
           t = swagger_type(nil, k.to_s)
@@ -181,6 +182,8 @@ module Jsonapi
           attr_descr[:comment] = comment if comment
           enum_values = column_value_enum(nil, k)
           attr_descr[:enum] = column_value_enum(nil, k) if enum_values.present?
+
+          attr_descr[:properties] = column_value_properties(nil, k) if t == :object
 
           h[k] = attr_descr
         end
@@ -196,8 +199,10 @@ module Jsonapi
             comment: column_comment(col, col_name),
             enum: column_value_enum(col, col_name)
           }
+
           format = swagger_format(col)
           clos[col_name.to_sym][:format] = format unless format.nil?
+          clos[col_name.to_sym][:properties] = column_value_properties(col, col_name) if clos[col_name.to_sym][:properties] == :object
 
           clos[col_name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
         end
@@ -226,6 +231,12 @@ module Jsonapi
       comment
     end
 
+
+    def column_value_properties(_col, col_name)
+      resource_klass.attribute_type_info[col_name.to_sym]&.[](:properties)
+    end
+
+
     def column_value_enum(_col, col_name)
       type_info = resource_klass.attribute_type_info[col_name.to_sym]
 
@@ -251,6 +262,9 @@ module Jsonapi
         :string
       end
     end
+
+
+
 
     # derives the swagger attribute type from AR database column type, also accepts json schema types
     def swagger_type_from_column_type(type)
