@@ -233,7 +233,10 @@ module Jsonapi
 
 
     def column_value_properties(_col, col_name)
-      resource_klass.attribute_type_info[col_name.to_sym]&.[](:properties)
+      lookup_res = resource_klass.attribute_type_info[col_name.to_sym]
+      if(lookup_res.is_a?(Hash))
+        lookup_res[:properties]
+      end
     end
 
 
