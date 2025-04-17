@@ -137,7 +137,7 @@ module Jsonapi
       relationships.values.map { |relation| relation_resource_name(relation) }
     end
 
-    def uniq_relationship_table_names(exclude: [])      
+    def uniq_relationship_table_names(exclude: [])
       relationship_table_names.uniq.reject { |name| exclude.include?(name) }
     end
 

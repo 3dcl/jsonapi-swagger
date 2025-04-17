@@ -53,7 +53,8 @@ RSpec.describe '<%= resources_name %>', type: :request do
     get '<%= route_resources %> <%= t(:list) %>' do
       tags '<%= route_resources %>'
       produces 'application/vnd.api+json'
-      parameter name: :'page[number]', in: :query, type: :string, description: '<%= t(:page_num) %>', required: false          
+      parameter name: :'page[number]', in: :query, type: :number, description: '<%= t(:page_num) %>', required: false          
+      parameter name: :'page[size]', in: :query, type: :number, description: '<%= t(:page_size) %>', required: false           
 <% if sortable_fields.present? -%>
       parameter name: :sort, in: :query, description: '<%= sortable_fields_desc %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= sortable_fields.map{|f| ["'-#{safe_encode(f.to_s)}'", "'#{safe_encode(f.to_s)}'"]}.flatten.join(',') %> ]}}
 <% end -%>
