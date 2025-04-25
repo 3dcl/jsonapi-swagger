@@ -170,13 +170,19 @@ module Jsonapi
     end
 
     def columns_with_comment(need_encoding: true)
-      resource_klass.attribute_type_info
+      type_info = resource_klass.attribute_type_info
 
       @columns_with_comment ||= {}.tap do |clos|
         clos.default_proc = proc do |h, k|
           t = swagger_type(nil, k.to_s)
           attr_descr = attribute_default.merge(type: t, is_array: t == :array)
-          attr_descr[:items_type] = array_items_type(k, nil) if t == :array
+          if t == :array
+            attr_descr[:items_type] = array_items_type(k, nil)
+            items_properties = type_info&.dig(k.to_sym, :items_properties)
+            if(items_properties)
+              attr_descr[:items_properties] = items_properties
+            end
+          end
           comment = column_comment(nil, k)
           attr_descr[:comment] = comment if comment
           enum_values = column_value_enum(nil, k)

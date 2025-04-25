@@ -130,14 +130,32 @@ If your resource adds attributes that do not map directly to a database column t
 class ExampleResource < JSONAPI::Resource
 
 attributes :subscribed,
-  :values
+  :values,
+  :array_min_max
 
   ATTRIBUTE_TYPE_INFO = {
     subscribed: { type: :boolean},
     values: {type: :array, 
+      # use items type to set the type of the array items
       items_type: :float, 
       comment: 'Explanatory comment, overrides stored database column comment'
+    },
+
+    # property of array items can be specified using items_properties
+    array_min_max: {
+      type: :array,
+      # when items_type is :object then items_properties are evaluated
+      items_type: :object,
+      items_properties: {
+        min: {
+          type: :number
+        },
+        max: {
+          type: :number
+        }
+      }
     }
+
   }
 
   def subscribed

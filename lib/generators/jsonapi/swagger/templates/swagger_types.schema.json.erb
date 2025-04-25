@@ -30,7 +30,18 @@
           end
 
           if columns_with_comment[attr][:is_array]
-            item_fields = [["type", columns_with_comment[attr][:items_type]]]
+            type = columns_with_comment[attr][:items_type]
+            item_fields =[];
+
+            item_fields = [["type", type]]
+            puts "#{columns_with_comment[attr]}"
+            if(type == :object)
+
+              items_properties = columns_with_comment[attr][:items_properties]
+              if(items_properties)
+                item_fields << ["properties", items_properties]
+              end
+            end
 
             if columns_with_comment[attr][:items_enum]
               item_fields << ["enum", columns_with_comment[attr][:items_enum]]
