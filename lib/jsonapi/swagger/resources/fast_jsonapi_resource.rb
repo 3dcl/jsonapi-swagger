@@ -19,6 +19,7 @@ module Jsonapi
       def attribute_type_info
         {}.with_indifferent_access
       end
+
       def sortable_fields
         []
       end

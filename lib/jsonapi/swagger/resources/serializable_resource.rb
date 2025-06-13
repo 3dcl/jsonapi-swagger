@@ -15,9 +15,10 @@ module Jsonapi
       def attribute_type_info
         {}.with_indifferent_access
       end
+
       def relationships
         {}.tap do |relations|
-          relationship_blocks.each do |rel, block|
+          relationship_blocks.each do |rel, _block|
             relations[rel] = OpenStruct.new(class_name: rel.to_s)
           end
         end
