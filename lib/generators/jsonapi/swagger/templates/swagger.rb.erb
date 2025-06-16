@@ -62,7 +62,24 @@ RSpec.describe '<%= resources_name %>', type: :request do
       parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
 <% filters.each do |filter_attr, filter_config| -%>
-      parameter name: :'filter[<%= filter_attr %>]', in: :query, type: :string, description: '<%= t(:filter_field) %>', <% if filter_config[:default] -%>default: '<%= safe_encode(filter_config[:default]) %>',<% end %>required: false
+      parameter name: :'filter[<%= filter_attr %>]', 
+        in: :query, 
+        style: :form, 
+        explode: false, 
+        required: false,
+        schema: {<%if filter_value_enum(filter_attr)%>
+          type: :array,
+          description: '<%= t(:filter_field) %>',<% if filter_config[:default] -%>
+          default: '<%= safe_encode(filter_config[:default]) %>',<% end %>
+          items: {
+            type: :string,
+            enum: <%="[#{filter_value_enum(filter_attr).map{|fv| "'#{fv}'"}.join(",")}]"%>
+          }<%else%>
+            type: :string,
+            description: '<%= t(:filter_field) %>',<% if filter_config[:default] -%>
+            default: '<%= safe_encode(filter_config[:default]) %>',<% end %>
+          <%end%>
+        }
 <% end -%>
       parameter name: :'fields[<%= route_resources %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% # as there might be multiple relations with the same resource, we make add only unique items. If the resource is self referencing the relations may include the resource itself that would lead to double entries. So we exclude them here%>

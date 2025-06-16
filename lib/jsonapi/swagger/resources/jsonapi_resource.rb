@@ -13,12 +13,9 @@ module Jsonapi
 
       def attribute_type_info
         info = nil
-        if(@jr.respond_to?(:resource_attribute_type_info))
-          info = @jr.resource_attribute_type_info
-        end
+        info = @jr.resource_attribute_type_info if @jr.respond_to?(:resource_attribute_type_info)
 
-        info ||= @jr.const_get(:ATTRIBUTE_TYPE_INFO) if @jr.const_defined?(:ATTRIBUTE_TYPE_INFO)         
-        
+        info ||= @jr.const_get(:ATTRIBUTE_TYPE_INFO) if @jr.const_defined?(:ATTRIBUTE_TYPE_INFO)
         (info || {}).with_indifferent_access
       end
       alias attributes _attributes

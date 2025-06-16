@@ -5,7 +5,7 @@ module Jsonapi
       extend Forwardable
 
       def_delegators :@fr, :attributes_to_serialize, :relationships_to_serialize, :sortable_fields,
-                           :creatable_fields, :updatable_fields, :filters, :mutable?, :transform_method
+                          :creatable_fields, :updatable_fields, :filters, :mutable?, :transform_method
 
       def initialize(fr)
         @fr = fr

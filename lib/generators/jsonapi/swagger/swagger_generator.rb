@@ -157,6 +157,15 @@ module Jsonapi
       resource_klass.filters
     end
 
+    # Returns the list of allowed values (enum) for a given attribute if defined.
+    #
+    # @param attribute [String, Symbol] The name of the attribute to check for enum values.
+    # @return [Array, nil] The array of allowed values if the attribute has an enum defined, otherwise nil.
+    def filter_value_enum(attribute_name)
+      type_info = resource_klass.attribute_type_info[attribute_name.to_sym]
+      type_info[:enum] if type_info.is_a?(Hash) && type_info[:enum].present?
+    end
+
     def mutable?
       resource_klass.mutable?
     end
@@ -179,9 +188,7 @@ module Jsonapi
           if t == :array
             attr_descr[:items_type] = array_items_type(k, nil)
             items_properties = type_info&.dig(k.to_sym, :items_properties)
-            if(items_properties)
-              attr_descr[:items_properties] = items_properties
-            end
+            attr_descr[:items_properties] = items_properties if items_properties
           end
           comment = column_comment(nil, k)
           attr_descr[:comment] = comment if comment
@@ -207,7 +214,9 @@ module Jsonapi
 
           format = swagger_format(col)
           clos[col_name.to_sym][:format] = format unless format.nil?
-          clos[col_name.to_sym][:properties] = column_value_properties(col, col_name) if clos[col_name.to_sym][:properties] == :object
+          if clos[col_name.to_sym][:properties] == :object
+            clos[col_name.to_sym][:properties] = column_value_properties(col, col_name)
+          end
 
           clos[col_name.to_sym][:comment] = safe_encode(col.comment) if need_encoding
         end
@@ -236,14 +245,10 @@ module Jsonapi
       comment
     end
 
-
     def column_value_properties(_col, col_name)
       lookup_res = resource_klass.attribute_type_info[col_name.to_sym]
-      if(lookup_res.is_a?(Hash))
-        lookup_res[:properties]
-      end
+      lookup_res[:properties] if lookup_res.is_a?(Hash)
     end
-
 
     def column_value_enum(_col, col_name)
       type_info = resource_klass.attribute_type_info[col_name.to_sym]
@@ -270,9 +275,6 @@ module Jsonapi
         :string
       end
     end
-
-
-
 
     # derives the swagger attribute type from AR database column type, also accepts json schema types
     def swagger_type_from_column_type(type)
