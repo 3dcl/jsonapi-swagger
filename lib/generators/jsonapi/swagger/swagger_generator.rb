@@ -3,14 +3,18 @@ module Jsonapi
     desc 'Create a JSONAPI Swagger.'
     source_root File.expand_path('templates', __dir__)
     def create_swagger_file
+      results = []
       if Jsonapi::Swagger.use_rswag
-        template 'swagger.rb.erb', spec_file
-        template 'swagger_types.schema.json.erb', spec_types_file
-        template 'common_types_jsonapi.schema.json.erb', common_types_file
+
+        puts "Generating Swagger spec for #{model_class_name} using Rswag ..."
+        results << template('swagger.rb.erb', spec_file)
+        results << template('swagger_types.schema.json.erb', spec_types_file)
+        results << template('common_types_jsonapi.schema.json.erb', common_types_file)
 
       else
-        template 'swagger.json.erb', json_file
+        results << template('swagger.json.erb', json_file)
       end
+      results
     end
 
     protected

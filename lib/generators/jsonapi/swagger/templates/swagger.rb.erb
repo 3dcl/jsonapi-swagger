@@ -5,7 +5,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
 
 
   # try to find a swagger_base, e.g., to build common data
-  # enable generated section create a file named swagger_base.rb.erb in lib/templates/jsonapi/swagger  
+  # enable generated section create a file named swagger_base.rb.erb in lib/templates/jsonapi/swagger
   <%= ERB.new(File.open(begin
     find_in_source_paths("swagger_base.rb.erb")
   rescue => e
@@ -16,7 +16,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
   # default value for id is nil, you can set it in the context block in order to test the show, update, destroy actions
   let(:id){ nil }
 
-  # add data for post or patch  
+  # add data for post or patch
   # to customized the generated files create a file named swagger_data.rb.erb in lib/templates/jsonapi/swagger
   # or create a file named swagger_data_{resources_name}.rb in lib/templates/jsonapi/swagger
   <%= ERB.new(File.open(begin
@@ -53,8 +53,8 @@ RSpec.describe '<%= resources_name %>', type: :request do
     get '<%= route_resources %> <%= t(:list) %>' do
       tags '<%= route_resources %>'
       produces 'application/vnd.api+json'
-      parameter name: :'page[number]', in: :query, type: :number, description: '<%= t(:page_num) %>', required: false          
-      parameter name: :'page[size]', in: :query, type: :number, description: '<%= t(:page_size) %>', required: false           
+      parameter name: :'page[number]', in: :query, type: :number, description: '<%= t(:page_num) %>', required: false
+      parameter name: :'page[size]', in: :query, type: :number, description: '<%= t(:page_size) %>', required: false
 <% if sortable_fields.present? -%>
       parameter name: :sort, in: :query, description: '<%= sortable_fields_desc %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= sortable_fields.map{|f| ["'-#{safe_encode(f.to_s)}'", "'#{safe_encode(f.to_s)}'"]}.flatten.join(',') %> ]}}
 <% end -%>
@@ -62,10 +62,10 @@ RSpec.describe '<%= resources_name %>', type: :request do
       parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
 <% filters.each do |filter_attr, filter_config| -%>
-      parameter name: :'filter[<%= filter_attr %>]', 
-        in: :query, 
-        style: :form, 
-        explode: false, 
+      parameter name: :'filter[<%= filter_attr %>]',
+        in: :query,
+        style: :form,
+        explode: false,
         required: false,
         schema: {<%if filter_value_enum(filter_attr)%>
           type: :array,
@@ -154,81 +154,84 @@ RSpec.describe '<%= resources_name %>', type: :request do
       produces 'application/vnd.api+json'
       parameter name: :data,
                 in: :body,
-                type: :object,
-                properties: {
-                  data: {
-                    type: :object,
-                    properties: {
-                      type: { type: :string, default: '<%= route_resources %>' },
-                      attributes: {
-                        type: :object,
-                        properties: {
-<% creatable_fields.each do |attr| -%>
-                      <%= attr %>: {
-                        type: :<%= columns_with_comment[attr][:type] %>,
-<% if columns_with_comment[attr][:format] -%>
-                        format: :'<%=columns_with_comment[attr][:format]%>',
-<% end -%>
-<% if columns_with_comment[attr][:enum] -%>
-                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%>"],
-<% end -%>
-<% if columns_with_comment[attr][:is_array] -%>
-                        items: {
-                          type: :<%= columns_with_comment[attr][:items_type] %>,
-<% if columns_with_comment[attr][:items_properties] -%>
-                          properties: :<%= columns_with_comment[attr][:items_properties] %>,
-<%end%>
-<% if columns_with_comment[attr][:items_enum] -%>
-                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%>"],
-<% end -%>
-                        },
-<% end -%>
-                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
-                        description: '<%= columns_with_comment[attr][:comment] %>'
-                      },
-<%end -%>
-                      }
-                    },
-<% if relationships.present? -%>
-                      relationships: {
-                        type: :object,
-                        properties: {
-<% relationships.each do |relation_name, relation| -%>
-  <% relation_name_camelize = relation_name.to_s.camelize -%>
-                        <%= relation_name %>: {
+                schema: {
+                  title: '<%="Create#{resources_name.camelize}"%>',
+                  type: :object,
+                  properties: {
+                    data: {
+                      type: :object,
+                      properties: {
+                        type: { type: :string, default: '<%= route_resources %>' },
+                        attributes: {
                           type: :object,
                           properties: {
-<% if relation.try(:belongs_to?) -%>
-                            data: {
-                              type: :object,
-                              properties: {
-                                type: { type: :string, default: '<%= relation.table_name %>' },
-                                id: { type: :string, description: '<%= relation_name_camelize %> ID' },
-                              },
-                              description: '<%= t(:related_id, model: relation_name_camelize) %>'
-                            },
-<% else -%>
-                            data: {
-                              type: :array,
-                              items: {
+  <% creatable_fields.each do |attr| -%>
+                        <%= attr %>: {
+                          type: :<%= columns_with_comment[attr][:type] %>,
+  <% if columns_with_comment[attr][:format] -%>
+                          format: :'<%=columns_with_comment[attr][:format]%>',
+  <% end -%>
+  <% if columns_with_comment[attr][:enum] -%>
+                          enum: ["<%=columns_with_comment[attr][:enum].join('", "')%>"],
+  <% end -%>
+  <% if columns_with_comment[attr][:is_array] -%>
+                          items: {
+                            type: :<%= columns_with_comment[attr][:items_type] %>,
+  <% if columns_with_comment[attr][:items_properties] -%>
+                            properties: :<%= columns_with_comment[attr][:items_properties] %>,
+  <%end%>
+  <% if columns_with_comment[attr][:items_enum] -%>
+                          enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%>"],
+  <% end -%>
+                          },
+  <% end -%>
+                          'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                          description: '<%= columns_with_comment[attr][:comment] %>'
+                        },
+  <%end -%>
+                        }
+                      },
+  <% if relationships.present? -%>
+                        relationships: {
+                          type: :object,
+                          properties: {
+  <% relationships.each do |relation_name, relation| -%>
+    <% relation_name_camelize = relation_name.to_s.camelize -%>
+                          <%= relation_name %>: {
+                            type: :object,
+                            properties: {
+  <% if relation.try(:belongs_to?) -%>
+                              data: {
                                 type: :object,
                                 properties: {
                                   type: { type: :string, default: '<%= relation.table_name %>' },
                                   id: { type: :string, description: '<%= relation_name_camelize %> ID' },
                                 },
+                                description: '<%= t(:related_id, model: relation_name_camelize) %>'
                               },
-                              description: '<%= t(:related_ids, model: relation_name_camelize) %>'
+  <% else -%>
+                              data: {
+                                type: :array,
+                                items: {
+                                  type: :object,
+                                  properties: {
+                                    type: { type: :string, default: '<%= relation.table_name %>' },
+                                    id: { type: :string, description: '<%= relation_name_camelize %> ID' },
+                                  },
+                                },
+                                description: '<%= t(:related_ids, model: relation_name_camelize) %>'
+                              },
+  <% end -%>
                             },
-<% end -%>
+                            description: '<%= t(:related_ids, model: relation_name_camelize) %>'
                           },
-                          description: '<%= t(:related_ids, model: relation_name_camelize) %>'
-                        },
-<% end -%>
+  <% end -%>
+                        }
                       }
+  <% end -%>
                     }
-<% end -%>
-                  }
-                },
+                  },
+                }
               },
               description: '<%= t(:request_body) %>'
 
@@ -253,82 +256,85 @@ path '/<%= route_resources %>/{id}' do
       parameter name: :id, in: :path, type: :integer, description: 'ID', required: true
       parameter name: :data,
                 in: :body,
-                type: :object,
-                properties: {
-                  data: {                    
-                    type: :object,
-                    properties: {
-                      type: { type: :string, default: '<%= route_resources %>' },
-                      id: { type: :string },
-                      attributes: {
-                        type: :object,
-                        properties: {
-<% updatable_fields.each do |attr| -%>
-                      <%= attr %>: {
-                        type: :<%= columns_with_comment[attr][:type] %>,
-<% if columns_with_comment[attr][:format] -%>
-                        format: :'<%=columns_with_comment[attr][:format]%>',
-<% end -%>
-<% if columns_with_comment[attr][:enum] -%>
-                        enum: ["<%=columns_with_comment[attr][:enum].join('", "')%>"],
-<% end -%>
-<% if columns_with_comment[attr][:is_array] -%>
-                        items: {
-                          type: :<%= columns_with_comment[attr][:items_type] %>
-<% if columns_with_comment[attr][:items_properties] -%>
-                          properties: :<%= columns_with_comment[attr][:items_properties] %>,
-<%end%>
-<% if columns_with_comment[attr][:items_enum] -%>
-                        enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%>"],
-<% end -%>
-                        },
-<% end -%>
-                        'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
-                        description: '<%= columns_with_comment[attr][:comment] %>'
-                      },
-<%end -%>
-                }
-                      },
-<% if relationships.present? -%>
-                      relationships: {
-                        type: :object,
-                        properties: {
-<% relationships.each do |relation_name, relation| -%>
-  <% relation_name_camelize = relation_name.to_s.camelize -%>
-                        <%= relation_name %>: {
+                schema: {
+                  title: '<%="Update#{resources_name.camelize}"%>',
+                  type: :object,
+                  properties: {
+                    data: {
+                      type: :object,
+                      properties: {
+                        type: { type: :string, default: '<%= route_resources %>' },
+                        id: { type: :string },
+                        attributes: {
                           type: :object,
                           properties: {
-<% if relation.belongs_to? -%>
-                            data: {
-                              type: :object,
-                              properties: {
-                                type: { type: :string, default: '<%= relation.table_name %>' },
-                                id: { type: :string, description: '<%= relation_name_camelize %> ID' },
-                              },
-                              description: '<%= t(:related_id, model: relation_name_camelize) %>'
-                            },
-<% else -%>
-                            data: {
-                              type: :array,
-                              items: {
+  <% updatable_fields.each do |attr| -%>
+                        <%= attr %>: {
+                          type: :<%= columns_with_comment[attr][:type] %>,
+  <% if columns_with_comment[attr][:format] -%>
+                          format: :'<%=columns_with_comment[attr][:format]%>',
+  <% end -%>
+  <% if columns_with_comment[attr][:enum] -%>
+                          enum: ["<%=columns_with_comment[attr][:enum].join('", "')%>"],
+  <% end -%>
+  <% if columns_with_comment[attr][:is_array] -%>
+                          items: {
+                            type: :<%= columns_with_comment[attr][:items_type] %>
+  <% if columns_with_comment[attr][:items_properties] -%>
+                            properties: :<%= columns_with_comment[attr][:items_properties] %>,
+  <%end%>
+  <% if columns_with_comment[attr][:items_enum] -%>
+                          enum: ["<%=columns_with_comment[attr][:items_enum].to_a.join('", "')%>"],
+  <% end -%>
+                          },
+  <% end -%>
+                          'x-nullable': <%= columns_with_comment[attr][:nullable] %>,
+                          description: '<%= columns_with_comment[attr][:comment] %>'
+                        },
+  <%end -%>
+                  }
+                        },
+  <% if relationships.present? -%>
+                        relationships: {
+                          type: :object,
+                          properties: {
+  <% relationships.each do |relation_name, relation| -%>
+    <% relation_name_camelize = relation_name.to_s.camelize -%>
+                          <%= relation_name %>: {
+                            type: :object,
+                            properties: {
+  <% if relation.belongs_to? -%>
+                              data: {
                                 type: :object,
                                 properties: {
                                   type: { type: :string, default: '<%= relation.table_name %>' },
                                   id: { type: :string, description: '<%= relation_name_camelize %> ID' },
                                 },
+                                description: '<%= t(:related_id, model: relation_name_camelize) %>'
                               },
-                              description: '<%= t(:related_ids, model: relation_name_camelize) %>'
+  <% else -%>
+                              data: {
+                                type: :array,
+                                items: {
+                                  type: :object,
+                                  properties: {
+                                    type: { type: :string, default: '<%= relation.table_name %>' },
+                                    id: { type: :string, description: '<%= relation_name_camelize %> ID' },
+                                  },
+                                },
+                                description: '<%= t(:related_ids, model: relation_name_camelize) %>'
+                              },
+  <% end -%>
                             },
-<% end -%>
+                            description: '<%= t(:related_ids, model: relation_name_camelize) %>'
                           },
-                          description: '<%= t(:related_ids, model: relation_name_camelize) %>'
-                        },
-<% end -%>
+  <% end -%>
+                        }
                       }
+  <% end -%>
                     }
-<% end -%>
-                  }
-                },
+                  },
+                }
               },
               description: '<%= t(:request_body) %>'
 
@@ -337,7 +343,7 @@ path '/<%= route_resources %>/{id}' do
           properties: {
             data: {
               '$ref': '#/components/schemas/<%= route_resources %>'
-            }          
+            }
           },
           required: [:data]
         let(:id) { @<%= model_name %>.id }
