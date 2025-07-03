@@ -1,7 +1,6 @@
 {
 
-  "type": "object",
-  "$ref": "#components/schemas/jsonapi_resource",  
+  "type": "object",  
   "properties": {
     "id": { "type": "string", "description": "ID"},
     "type": { "type":  "string", "enum": ["<%=resource_type_name %>"]},
@@ -65,13 +64,16 @@
       "type": "object",
       "properties":
 <%= JSON.pretty_generate(relationships.map do |relation_name, relation|
-relation_name_camelize = relation_name.to_s.camelize
-[relation_name, {
-
-          "$ref": "#/components/schemas/jsonapi_associated_object_link"
-        }]
-end.to_h) -%>
-      ,
+puts relation.class
+  relation_name_camelize = relation_name.to_s.camelize
+  value = if relation.is_a?(JSONAPI::Relationship)
+    # Jsonapi resource
+    relation.is_a?(JSONAPI::Relationship::ToOne) ? {"$ref": "#/components/schemas/jsonapi_associated_object_link"   } : {"$ref": "#/components/schemas/jsonapi_associated_objects_link"   }
+  else
+    {"$ref": "#/components/schemas/jsonapi_associated_object_link_general"   }
+  end
+  [relation_name, value]
+end.to_h) -%>,
       "description": "<%= t(:associate_data) %>"
     }
 }

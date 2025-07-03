@@ -1,7 +1,14 @@
 {
   "components": {
     "schemas": {
-      "jsonapi_associated_object_link": {
+      "jsonapi_associated_objects_link": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/jsonapi_associated_object_link"
+        },
+        "description": "Array of associated objects links"
+      },
+      "jsonapi_associated_object_link": {        
         "type": "object",
         "properties": {
           "links": {
@@ -17,6 +24,19 @@
             "description": "related link"
           }
         }
+      },
+      "jsonapi_associated_object_link_general": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/jsonapi_associated_object_link"
+          },
+          {
+            
+            "$ref": "#/components/schemas/jsonapi_associated_objects_link"
+            
+          }
+        ],
+        "description": "Associated object link or an array of associated object links"
       },
       "jsonapi_resource": {
         "type": "object",
