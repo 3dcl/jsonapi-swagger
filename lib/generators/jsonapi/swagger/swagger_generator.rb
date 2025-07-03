@@ -39,6 +39,23 @@ module Jsonapi
       )
     end
 
+    def schema_file_for_resource_exstists?(the_resource_name)
+      file = schema_filename_for_resource(the_resource_name)
+      File.exist?(file)
+    end
+
+    def schema_file_for_resource(the_resource_name = resource_name)
+      @schema_file_for_resource ||= schema_filename_for_resource(the_resource_name)
+    end
+
+    def schema_filename_for_resource(resource_name)
+      File.join(
+        'config/schemas/openapi/types',
+        class_path,
+        "#{resource_name.underscore}.schema.json"
+      )
+    end
+
     def common_types_file
       @common_types_file ||= File.join(
         'config/schemas/openapi/types',
@@ -118,7 +135,20 @@ module Jsonapi
     end
 
     def model_klass
+      return @model_klass if @model_klass
+
       @model_klass ||= model_class_name.safe_constantize
+
+      return @model_klass if @model_klass.present?
+
+      puts resource_klass.model_klass
+      @model_klass = resource_klass&.model_klass if @model_klass.blank? && resource_klass.present?
+
+      if @model_klass.blank?
+        raise Jsonapi::Swagger::Error, "Model class '#{model_class_name}' not found! " \
+                                        'Please check if the model class exists and is loaded.'
+      end
+      @model_klass
     end
 
     def resource_klass
@@ -135,6 +165,10 @@ module Jsonapi
 
     def relationship_resource_names
       relationships.values.map { |relation| relation_resource_name(relation) }
+    end
+
+    def relationship_resource_names_uniq
+      relationships.values.map { |relation| relation_resource_name(relation) }.uniq
     end
 
     def relationship_table_names

@@ -20,6 +20,10 @@ module Jsonapi
       end
       alias attributes _attributes
       alias relationships _relationships
+
+      def model_klass
+        @jr&._model_class
+      end
     end
   end
 end

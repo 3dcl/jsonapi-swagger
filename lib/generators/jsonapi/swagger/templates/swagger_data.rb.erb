@@ -5,7 +5,7 @@ let(:data) do
 
   data = { data: {
     type: '<%= route_resources %>',
-    attributes: <%= FactoryBot.attributes_for(model_name.to_sym).select{|k,v| creatable_fields.map(&:to_sym).include?(k) }.map{|k,v| [k, v.is_a?(Time) ? v.iso8601 : v]}.to_h %>
+    attributes: <%= FactoryBot.attributes_for(model_name.to_sym).select{|k,v| creatable_fields.map(&:to_sym).include?(k) }.map{|k,v| [k, v.is_a?(Time) ? v.iso8601 : (v.is_a?(ActiveSupport::Duration) ? v.to_s : v)]}.to_h %>
   } }
 
   # add id if the request did set the ID, e.g., for updates

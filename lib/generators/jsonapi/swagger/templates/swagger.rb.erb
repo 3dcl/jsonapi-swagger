@@ -59,7 +59,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
       parameter name: :sort, in: :query, description: '<%= sortable_fields_desc %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= sortable_fields.map{|f| ["'-#{safe_encode(f.to_s)}'", "'#{safe_encode(f.to_s)}'"]}.flatten.join(',') %> ]}}
 <% end -%>
 <% if relationships.present? -%>
-      parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: { type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
+      parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, explode: false, schema: { type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
 <% filters.each do |filter_attr, filter_config| -%>
       parameter name: :'filter[<%= filter_attr %>]',
@@ -95,6 +95,19 @@ RSpec.describe '<%= resources_name %>', type: :request do
                 '$ref': '#/components/schemas/<%= route_resources %>'
               }
             },
+            included: {
+              type: :array,
+              items: {
+                anyOf: [
+                  <% existing_schema_files_resource_names = relationship_resource_names_uniq.reject{ |rn| !schema_file_for_resource_exstists?(rn)} -%>
+                  <% missing_schema_files = relationship_resource_names_uniq.reject{ |rn| schema_file_for_resource_exstists?(rn)} -%>
+                  <%= existing_schema_files_resource_names.map{|rn| "{'$ref': '#/components/schemas/#{rn}'}"}.join(",\n") %><%= !existing_schema_files_resource_names.blank? && missing_schema_files.present? ? ',': '' %>
+                  <% if missing_schema_files.present? -%>                    
+                    { '$ref': '#/components/schemas/jsonapi_resource' }
+                  <% end -%>
+                ]
+              }
+            },
             meta: {
               type: :object,
               properties: {
@@ -124,7 +137,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
       produces 'application/vnd.api+json'
       parameter name: :id, in: :path, type: :integer, description: 'ID', required: true
 <% if relationships.present? -%>
-      parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, schema: {type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
+      parameter name: :include, in: :query, description: '<%= t(:include_related_data) %>', required: false, explode: false, schema: {type: "array", items: {type: :string, enum: [<%= relationships.map{|r_name, resource| "'#{r_name.to_s.underscore}'"}.join(',') %> ]}}
 <% end -%>
       parameter name: :'fields[<%= route_resources %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% # as there might be multiple relations with the same resource, we make add only unique items. If the resource is self referencing the relations may include the resource itself that would lead to double entries. So we exclude them here%>
@@ -136,7 +149,20 @@ RSpec.describe '<%= resources_name %>', type: :request do
           properties: {
             data: {
               '$ref': '#/components/schemas/<%= route_resources %>'
-            }
+            },
+            included: {
+              type: :array,
+              items: {                
+                anyOf: [
+                  <% existing_schema_files_resource_names = relationship_resource_names_uniq.reject{ |rn| !schema_file_for_resource_exstists?(rn)} -%>
+                  <% missing_schema_files = relationship_resource_names_uniq.reject{ |rn| schema_file_for_resource_exstists?(rn)} -%>                  
+                  <%= existing_schema_files_resource_names.map{|rn| "{'$ref': '#/components/schemas/#{rn}'}"}.join(",\n") %><%= !existing_schema_files_resource_names.blank? && missing_schema_files.present? ? ',': '' %>
+                  <% if missing_schema_files.present? -%>
+                    { '$ref': '#/components/schemas/jsonapi_resource' }
+                  <% end -%>
+                ]
+              }
+            },
           },
           "required": ["data"]
 

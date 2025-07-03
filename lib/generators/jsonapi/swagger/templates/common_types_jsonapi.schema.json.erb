@@ -17,6 +17,29 @@
             "description": "related link"
           }
         }
+      },
+      "jsonapi_resource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "links": {
+            "$ref": "#/components/schemas/jsonapi_associated_object_link"
+          },
+          "attributes": {
+            "type": "object",
+            "description": "Attributes of the included object"
+          },
+          "relationships": {
+            "type": "object",
+            "description": "Relationships of the included object"
+          }
+        },
+        "required": ["id", "type"]
       }
     }
   }

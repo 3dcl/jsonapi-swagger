@@ -44,6 +44,11 @@ module Jsonapi
       def mutable?
         false
       end
+
+      # TODO: from jsonapi resource, get the modl classs. using the resource
+      def model_klass
+        nil
+      end
     end
   end
 end

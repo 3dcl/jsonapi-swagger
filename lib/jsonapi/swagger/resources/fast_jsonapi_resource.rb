@@ -39,6 +39,10 @@ module Jsonapi
       def mutable?
         false
       end
+
+      def model_klass
+        nil
+      end
     end
   end
 end
