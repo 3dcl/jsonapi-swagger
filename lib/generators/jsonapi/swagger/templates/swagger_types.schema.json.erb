@@ -62,17 +62,17 @@
     },
     "relationships": {
       "type": "object",
-      "properties":
+      "properties":        
 <%= JSON.pretty_generate(relationships.map do |relation_name, relation|
 puts relation.class
   relation_name_camelize = relation_name.to_s.camelize
-  value = if relation.is_a?(JSONAPI::Relationship)
+  relationship_data_value = if relation.is_a?(JSONAPI::Relationship)
     # Jsonapi resource
-    relation.is_a?(JSONAPI::Relationship::ToOne) ? {"$ref": "#/components/schemas/jsonapi_associated_object_link"   } : {"$ref": "#/components/schemas/jsonapi_associated_objects_link"   }
+    relation.is_a?(JSONAPI::Relationship::ToOne) ? {"$ref": "#/components/schemas/jsonapi_to_one_relationship_data"   } : {"$ref": "#/components/schemas/jsonapi_to_many_relationship_data"   }
   else
-    {"$ref": "#/components/schemas/jsonapi_associated_object_link_general"   }
+    {"$ref": "#/components/schemas/jsonapi_to_many_relationship_data"   }
   end
-  [relation_name, value]
+  [relation_name, {type: :object, properties: {data: relationship_data_value}}]
 end.to_h) -%>,
       "description": "<%= t(:associate_data) %>"
     }

@@ -1,42 +1,42 @@
 {
   "components": {
     "schemas": {
-      "jsonapi_associated_objects_link": {
+      "jsonapi_to_many_relationship_data": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/jsonapi_associated_object_link"
+          "$ref": "#/components/schemas/jsonapi_to_one_relationship_data"
         },
         "description": "Array of associated objects links"
       },
-      "jsonapi_associated_object_link": {        
+      "jsonapi_to_one_relationship_data": {
         "type": "object",
         "properties": {
-          "links": {
-            "type": "object",
-            "properties": {
-              "self": {
-                "type": "string"
-              },
-              "related": {
-                "type": "string"
-              }
-            },
-            "description": "related link"
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
           }
-        }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "description": "Associated object data"
       },
-      "jsonapi_associated_object_link_general": {
+      "jsonapi_relationship_data": {
         "oneOf": [
           {
-            "$ref": "#/components/schemas/jsonapi_associated_object_link"
+            "$ref": "#/components/schemas/jsonapi_to_one_relationship_data"
           },
           {
-            
-            "$ref": "#/components/schemas/jsonapi_associated_objects_link"
-            
+            "$ref": "#/components/schemas/jsonapi_to_many_relationship_data"
           }
         ],
         "description": "Associated object link or an array of associated object links"
+      },
+      "jsonapi_resource_links": {
+        "type": "object"
       },
       "jsonapi_resource": {
         "type": "object",
@@ -48,7 +48,7 @@
             "type": "string"
           },
           "links": {
-            "$ref": "#/components/schemas/jsonapi_associated_object_link"
+            "$ref": "#/components/schemas/jsonapi_resource_links"
           },
           "attributes": {
             "type": "object",
@@ -56,10 +56,18 @@
           },
           "relationships": {
             "type": "object",
-            "description": "Relationships of the included object"
+            "description": "Relationships of the included object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/jsonapi_relationship_data"
+              }
+            }
           }
         },
-        "required": ["id", "type"]
+        "required": [
+          "id",
+          "type"
+        ]
       }
     }
   }
