@@ -64,7 +64,6 @@
       "type": "object",
       "properties":        
 <%= JSON.pretty_generate(relationships.map do |relation_name, relation|
-puts relation.class
   relation_name_camelize = relation_name.to_s.camelize
   relationship_data_value = if relation.is_a?(JSONAPI::Relationship)
     # Jsonapi resource

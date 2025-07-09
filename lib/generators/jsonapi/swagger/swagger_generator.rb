@@ -141,7 +141,6 @@ module Jsonapi
 
       return @model_klass if @model_klass.present?
 
-      puts resource_klass.model_klass
       @model_klass = resource_klass&.model_klass if @model_klass.blank? && resource_klass.present?
 
       if @model_klass.blank?
