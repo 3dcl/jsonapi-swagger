@@ -215,6 +215,22 @@ module Jsonapi
       @transform_method ||= resource_klass.transform_method if resource_klass.respond_to?(:transform_method)
     end
 
+    # Returns the appropriate HTTP response status code for a given controller action.
+    #
+    # @param action [String, Symbol] the name of the controller action (e.g., :index, :show, :create, :update, :destroy)
+    # @return [Integer] the HTTP status code corresponding to the action
+    def response_status_code(action)
+      puts "Determining response status code for action: #{action}"
+      code = @resource_klass.response_status_code(action)
+      return code if code.present?
+
+      case action.to_s
+      when 'create' then 201
+      when 'destroy' then 204
+      else 200
+      end
+    end
+
     def columns_with_comment(need_encoding: true)
       type_info = resource_klass.attribute_type_info
 
@@ -251,7 +267,7 @@ module Jsonapi
 
           format = swagger_format(col)
           clos[col_name.to_sym][:format] = format unless format.nil?
-          if clos[col_name.to_sym][:properties] == :object
+          if clos[col_name.to_sym][:type] == :object
             clos[col_name.to_sym][:properties] = column_value_properties(col, col_name)
           end
 

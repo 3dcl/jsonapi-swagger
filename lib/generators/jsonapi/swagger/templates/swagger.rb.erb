@@ -86,7 +86,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
 <% uniq_relationship_table_names(exclude: [route_resources] ).each do |relation_table_name| -%>
       parameter name: :'fields[<%= relation_table_name %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% end -%>
-      response '200', '<%= t(:get_list) %>' do
+      response '<%= response_status_code('index') %>', '<%= t(:get_list) %>' do
           schema type: :object,
           properties: {
             data: {
@@ -144,7 +144,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
 <% uniq_relationship_table_names(exclude: [route_resources]).each do |relation_table_name| -%>
       parameter name: :'fields[<%= relation_table_name %>]', in: :query, type: :string, description: '<%= t(:display_field) %>', required: false
 <% end -%>
-      response '200', '<%= t(:get_detail) %>' do
+      response '<%= response_status_code('show') %>', '<%= t(:get_detail) %>' do
         schema type: "object",
           properties: {
             data: {
@@ -261,7 +261,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
               },
               description: '<%= t(:request_body) %>'
 
-      response '201', '<%= t(:create) %>' do
+      response '<%= response_status_code('create') %>', '<%= t(:create) %>' do
         schema type: :object,
           properties: {
             data: {
@@ -364,7 +364,7 @@ path '/<%= route_resources %>/{id}' do
               },
               description: '<%= t(:request_body) %>'
 
-      response '200', '<%= t(:patch) %>' do
+      response '<%= response_status_code('update') %>', '<%= t(:patch) %>' do
         schema type: :object,
           properties: {
             data: {
@@ -384,7 +384,7 @@ path '/<%= route_resources %>/{id}' do
       produces 'application/vnd.api+json'
       parameter name: :id, in: :path, type: :integer, description: 'ID', required: true
 
-      response '204', '<%= t(:delete) %>' do
+      response '<%= response_status_code('destroy') %>', '<%= t(:delete) %>' do
         let(:id) { @<%= model_name %>.id }
         run_test!
       end

@@ -16,6 +16,10 @@ module Jsonapi
         {}.with_indifferent_access
       end
 
+      def response_status_code
+        nil
+      end
+
       def relationships
         {}.tap do |relations|
           relationship_blocks.each do |rel, _block|

@@ -20,6 +20,10 @@ module Jsonapi
         {}.with_indifferent_access
       end
 
+      def response_status_code(_action)
+        nil
+      end
+
       def sortable_fields
         []
       end

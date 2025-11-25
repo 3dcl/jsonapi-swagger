@@ -18,6 +18,13 @@ module Jsonapi
         info ||= @jr.const_get(:ATTRIBUTE_TYPE_INFO) if @jr.const_defined?(:ATTRIBUTE_TYPE_INFO)
         (info || {}).with_indifferent_access
       end
+
+      def response_status_code(action)
+        return @jr.resource_response_status_code(action) if @jr.respond_to?(:resource_response_status_code)
+
+        nil
+      end
+
       alias attributes _attributes
       alias relationships _relationships
 
