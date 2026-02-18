@@ -186,6 +186,7 @@ RSpec.describe '<%= resources_name %>', type: :request do
                   properties: {
                     data: {
                       type: :object,
+                      required: ['type'],
                       properties: {
                         type: { type: :string, default: '<%= route_resources %>' },
                         attributes: {
@@ -288,6 +289,7 @@ path '/<%= route_resources %>/{id}' do
                   properties: {
                     data: {
                       type: :object,
+                      required: ['id', 'type'],
                       properties: {
                         type: { type: :string, default: '<%= route_resources %>' },
                         id: { type: :string },

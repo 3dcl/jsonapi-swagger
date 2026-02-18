@@ -76,7 +76,7 @@
     def properties(attrs: [])
       Hash.new{|h, k| h[k] = {}} .tap do |props|
         attrs.each do |attr|
-         columns = columns_with_comment(need_encoding: false)
+          columns = columns_with_comment(need_encoding: false)
           props[attr][:type] = columns[attr][:type]
           if columns[attr][:is_array]
             items = { type: columns[attr][:items_type] }
