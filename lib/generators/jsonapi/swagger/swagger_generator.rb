@@ -387,7 +387,9 @@ module Jsonapi
     end
 
     def safe_encode(content)
-      content&.force_encoding('ASCII-8BIT')
+      # +String#b+ returns a copy in ASCII-8BIT; +force_encoding+ would mutate
+      # in place and raise FrozenError for frozen strings (e.g. PG column comments).
+      content&.b
     end
   end
 end
